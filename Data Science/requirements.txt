@@ -1,3 +1,4 @@
+streamlit
 panda
 numpy
 yfinance

@@ -3,6 +3,6 @@ panda
 numpy
 yfinance
 datetime
-pandas_datareader.data
-plotly.express
+pandas_datareader
+plotly
 numpy

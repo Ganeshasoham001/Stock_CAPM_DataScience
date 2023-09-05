@@ -6,6 +6,33 @@ import datetime as dt
 import pandas_datareader.data as pdr
 import plotly.express as px
 import numpy as np
+def interactive_plot(df):
+    fig= px.line()
+    for i in df.columns[1:]:
+        fig.add_scatter(x=df['Date'], y= df[i],name= i)
+    fig.update_layout(width=450,margin=dict(l=20,r=20,t=60,b=20),legend= dict(orientation='h',yanchor='bottom',y=1.02,xanchor='right',x =1,))
+    return fig
+# function for normalize of prices
+def normalized(df_2):
+    df=df_2.copy()
+    for i in df.columns[1:]:
+        df[i]=df[i]/df[i][0]
+    return df
+#functions to calculate daily returns
+def daily_returns(df):
+    df_daily_rtr=df.copy()
+    for i in df.columns[1:]:
+        for j in range(1,len(df)):
+            df_daily_rtr[i][j]= ((df[i][j]-df[i][j-1])/df[i][j-1])*100
+        df_daily_rtr[i][0]=0
+    return df_daily_rtr
+ 
+
+
+def calculate_beta(stocks_daily_rtr,stock):
+    rm= stocks_daily_rtr['sp500'].mean()*252
+    b,a=np.polyfit(stocks_daily_rtr['sp500'],stocks_daily_rtr[stock],1)
+    return b,a
 st.set_page_config(page_title= "CAPM",
                    page_icon= "chart_with_upward_trends",
                    layout= 'wide')
@@ -46,11 +73,11 @@ try:
     col1,col2 = st.columns([1,1])
     with col1:
         st.markdown("### Price of all stocks")
-        st.plotly_chart(capm_functions.interactive_plot(stocks_df))
-    with col2:
+        st.plotly_chart(interactive_plot(stocks_df))
+    with col2:                                                              
         st.markdown('### Price of All Stocks after Normalizing')
-        st.plotly_chart(capm_functions.interactive_plot(capm_functions.normalized(stocks_df)))
-    stocks_daily_return=capm_functions.daily_returns(stocks_df)
+        st.plotly_chart(interactive_plot(normalized(stocks_df)))
+    stocks_daily_return=daily_returns(stocks_df)
     print(stocks_daily_return.head())
 
 
@@ -59,7 +86,7 @@ try:
     alpha={}
     for i in stocks_daily_return.columns:
         if i !='Date' and i!='sp500':
-            b,a = capm_functions.calculate_beta(stocks_daily_return,i)
+            b,a =calculate_beta(stocks_daily_return,i)
 
             beta[i]=b
             alpha[i]=a
@@ -86,34 +113,7 @@ try:
         st.dataframe(return_df,use_container_width=True)
 except:
     st.write('Please select Valid stocks')
-def interactive_plot(df):
-    fig= px.line()
-    for i in df.columns[1:]:
-        fig.add_scatter(x=df['Date'], y= df[i],name= i)
-    fig.update_layout(width=450,margin=dict(l=20,r=20,t=60,b=20),legend= dict(orientation='h',yanchor='bottom',y=1.02,xanchor='right',x =1,))
-    return fig
-# function for normalize of prices
-def normalized(df_2):
-    df=df_2.copy()
-    for i in df.columns[1:]:
-        df[i]=df[i]/df[i][0]
-    return df
-#functions to calculate daily returns
-def daily_returns(df):
-    df_daily_rtr=df.copy()
-    for i in df.columns[1:]:
-        for j in range(1,len(df)):
-            df_daily_rtr[i][j]= ((df[i][j]-df[i][j-1])/df[i][j-1])*100
-        df_daily_rtr[i][0]=0
-    return df_daily_rtr
- 
-
-
-def calculate_beta(stocks_daily_rtr,stock):
-    rm= stocks_daily_rtr['sp500'].mean()*252
-    b,a=np.polyfit(stocks_daily_rtr['sp500'],stocks_daily_rtr[stock],1)
-    return b,a
-                          
+      
                           
 
 

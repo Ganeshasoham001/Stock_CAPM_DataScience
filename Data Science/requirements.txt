@@ -1,8 +1,0 @@
-streamlit
-panda
-numpy
-yfinance
-datetime
-pandas_datareader.data
-plotly.express
-numpy
